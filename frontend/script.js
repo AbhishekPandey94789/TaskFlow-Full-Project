@@ -11,7 +11,12 @@
  *  - All data ultimately comes from / goes to the real FastAPI backend
  */
 
-const API = "http://127.0.0.1:8000";
+// In production the frontend is served by the same FastAPI process,
+// so relative paths work for both local dev (two-process) and Render (single-process).
+// When opened via file:// during local dev, fall back to localhost:8000.
+const API = (window.location.protocol === "file:")
+  ? "http://127.0.0.1:8000"
+  : "";
 
 // ---- State ----------------------------------------------------------------
 let currentProjectId = null;
