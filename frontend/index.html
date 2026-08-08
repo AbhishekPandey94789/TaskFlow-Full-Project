@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Blinkit Engineering</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== STICKY HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="logo">&#9654; TaskFlow</h1>
+      <span class="tagline">Blinkit Dark-Store Engineering</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- ===== PROJECT SELECTOR ===== -->
+    <section class="card project-section" aria-label="Project selector">
+      <h2>Projects</h2>
+      <div class="row-flex">
+        <select id="projectSelect" aria-label="Select project">
+          <option value="">— select a project —</option>
+        </select>
+        <button id="newProjectBtn" class="btn btn-secondary">+ New Project</button>
+        <button id="statsBtn" class="btn btn-ghost">&#128200; Stats</button>
+      </div>
+      <!-- inline new-project form (hidden by default) -->
+      <form id="newProjectForm" class="sub-form hidden" aria-label="Create project">
+        <input id="projNameInput" type="text" placeholder="Project name" autocomplete="off" />
+        <input id="projOwnerInput" type="number" placeholder="Owner user ID" min="1" />
+        <button type="submit" class="btn btn-primary">Create</button>
+        <button type="button" id="cancelProjectBtn" class="btn btn-ghost">Cancel</button>
+        <span id="projError" class="error-msg" role="alert" aria-live="polite"></span>
+      </form>
+    </section>
+
+    <!-- ===== STATS PANEL (hidden by default) ===== -->
+    <section id="statsPanel" class="card hidden" aria-label="Project statistics">
+      <h2>Project Statistics</h2>
+      <div id="statsContent"></div>
+    </section>
+
+    <!-- ===== ADD / QUICK-ADD TASK FORM ===== -->
+    <section class="card form-section" aria-label="Add task">
+      <h2>Add Task</h2>
+
+      <!-- Standard form -->
+      <form id="taskForm" novalidate aria-label="Standard task form">
+        <div class="form-grid">
+          <div class="field-group">
+            <label for="taskTitle">Title <span aria-hidden="true">*</span></label>
+            <input id="taskTitle" type="text" placeholder="Task title" autocomplete="off" />
+            <span id="titleError" class="error-msg" role="alert" aria-live="polite"></span>
+          </div>
+          <div class="field-group">
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" aria-label="Priority">
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="taskDueDate">Due date</label>
+            <input id="taskDueDate" type="text" placeholder="e.g. next friday, 2024-12-01" autocomplete="off" />
+          </div>
+          <div class="field-group">
+            <label for="taskStatus">Status</label>
+            <select id="taskStatus" aria-label="Status">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitTaskBtn">Add Task</button>
+      </form>
+
+      <!-- Divider -->
+      <div class="divider"><span>or use AI Quick-Add</span></div>
+
+      <!-- Quick-add form -->
+      <form id="quickAddForm" novalidate aria-label="AI quick-add form">
+        <div class="field-group">
+          <label for="quickAddInput">Describe your task in plain English</label>
+          <input id="quickAddInput" type="text"
+                 placeholder='e.g. "Fix urgent deploy issue next friday"'
+                 autocomplete="off" />
+          <span id="quickAddError" class="error-msg" role="alert" aria-live="polite"></span>
+        </div>
+        <button type="submit" class="btn btn-ai">&#10024; Quick-Add with AI</button>
+      </form>
+    </section>
+
+    <!-- ===== TASK LIST ===== -->
+    <section class="card list-section" aria-label="Task list">
+      <div class="list-header">
+        <h2>Tasks</h2>
+        <div class="list-controls">
+          <input id="searchInput" type="search" placeholder="Search exact title…" aria-label="Search tasks" />
+          <button id="searchBtn" class="btn btn-ghost">&#128269; Search</button>
+          <select id="sortSelect" aria-label="Sort tasks">
+            <option value="">— sort —</option>
+            <option value="priority">By Priority</option>
+            <option value="due_date">By Due Date</option>
+          </select>
+          <button id="sortBtn" class="btn btn-ghost">Sort</button>
+          <button id="refreshBtn" class="btn btn-ghost">&#8635; Refresh</button>
+        </div>
+      </div>
+      <p id="listStatus" class="list-status" aria-live="polite"></p>
+      <ul id="taskList" class="task-list" aria-label="Task items"></ul>
+    </section>
+
+  </main>
+
+  <!-- ===== EDIT MODAL ===== -->
+  <div id="editModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Edit task">
+    <div class="modal-box">
+      <h2>Edit Task</h2>
+      <form id="editForm" novalidate>
+        <div class="field-group">
+          <label for="editTitle">Title</label>
+          <input id="editTitle" type="text" />
+          <span id="editTitleError" class="error-msg" role="alert" aria-live="polite"></span>
+        </div>
+        <div class="field-group">
+          <label for="editPriority">Priority</label>
+          <select id="editPriority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="editDueDate">Due date</label>
+          <input id="editDueDate" type="text" />
+        </div>
+        <div class="field-group">
+          <label for="editStatus">Status</label>
+          <select id="editStatus">
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <input type="hidden" id="editTaskId" />
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" id="cancelEditBtn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== USER BOOTSTRAP MODAL (first run) ===== -->
+  <div id="userModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Create account">
+    <div class="modal-box">
+      <h2>Welcome to TaskFlow</h2>
+      <p>Create your account to get started.</p>
+      <form id="userForm" novalidate>
+        <div class="field-group">
+          <label for="userName">Your name</label>
+          <input id="userName" type="text" placeholder="Full name" autocomplete="name" />
+        </div>
+        <div class="field-group">
+          <label for="userEmail">Email</label>
+          <input id="userEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+          <span id="userError" class="error-msg" role="alert" aria-live="polite"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Get Started</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
