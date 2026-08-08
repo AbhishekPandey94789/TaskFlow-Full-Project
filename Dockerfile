@@ -1,16 +1,24 @@
 FROM python:3.11.9-slim
 
+# Install build tools in case any package needs them
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copy and install backend dependencies
+# Copy requirements first for better layer caching
 COPY backend/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the full project
+# Install Python dependencies — prefer binary wheels, allow source compile as fallback
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy entire project
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
-# Set working directory to backend so uvicorn finds app.main
+# Set working dir to backend so `app.main` is importable
 WORKDIR /app/backend
 
 EXPOSE 10000
