@@ -1,0 +1,26 @@
+================================================================
+TaskFlow — Section 2 Algorithm Benchmark
+================================================================
+  Size    InsSort Cmps    BinSearch Cmps    LinSearch Cmps
+----------------------------------------------------------------
+    10              28                 5                 9
+   500          61,632                15               104
+  3000       2,265,915                21             1,697
+================================================================
+
+Complexity Summary
+----------------------------------------
+insertion_sort : best O(n), worst O(n²)
+binary_search  : best O(1), worst O(log n)  [requires sorted input]
+linear_search  : best O(1), worst O(n)
+
+Analysis (sort-first trade-off)
+----------------------------------------
+At n=3000, insertion_sort costs ~4.5 M comparisons (worst case O(n²)).
+Once the list is sorted, every binary search costs at most ~24 comparisons (O(log n)).
+Linear search on the unsorted list costs up to 3000 comparisons per query.
+For a team that sorts/views tasks many times a day but adds tasks infrequently,
+the one-time sort cost is amortised over many binary searches — each of which is
+~125× cheaper than a linear scan at n=3000.  The sort-first strategy is therefore
+worth it for TaskFlow's read-heavy usage pattern.
+================================================================
